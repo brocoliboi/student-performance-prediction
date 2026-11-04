@@ -1,68 +1,75 @@
 # Student Performance Prediction Using Machine Learning
 
-A supervised-learning project comparing Logistic Regression, Gaussian Naive Bayes, and Support Vector Machine classifiers on the mathematics subset of the UCI Student Performance dataset.
+A supervised-learning project comparing Logistic Regression, Gaussian Naive Bayes and Support Vector Machine (RBF kernel) on the mathematics subset of the UCI Student Performance dataset.
 
-## Project contents
+## Run the project
 
-| File | Description |
-|---|---|
-| `machine_learning_miniproject.ipynb` | Submitted Google Colab notebook |
-| `student_performance_dataset.csv` | Prepared dataset |
-| `test_set_model_comparison.csv` | Held-out test metrics |
-| `cross_validation_results.csv` | Stratified 5-fold validation metrics |
-| `test_set_predictions.csv` | Actual and predicted test labels |
-| `feature_importance.csv` | Permutation feature-importance results |
-| `project_summary.txt` | Experiment summary |
-| `requirements.txt` | Main Python dependencies |
-| `.gitignore` | Python, environment, notebook, and secret-file exclusions |
+1. Clone or download this repository.
+2. Install dependencies: `pip install -r requirements.txt`.
+3. Open `machine_learning_miniproject.ipynb` in Jupyter or Google Colab.
+4. Run all cells from top to bottom. The notebook downloads the UCI dataset automatically; **no manual file upload is required**.
 
-## Target classes
+The notebook saves the trained models, dataset, evaluation CSVs and `model_metadata.json` in its working directory.
 
-The `Performance` label is derived from final mathematics grade (`G3`):
+## Target definition
+
+The target is derived from final mathematics grade (`G3`):
 - **Low:** 0–9
 - **Medium:** 10–14
 - **High:** 15–20
 
-The notebook excludes `G1`, `G2`, and `G3` as predictor features to reduce direct target leakage.
+To avoid direct target leakage, `G1`, `G2` and `G3` are excluded from predictor features.
 
-## Reported test-set results
+## Models and evaluation
 
-| Model | Accuracy | Macro F1 |
-|---|---:|---:|
-| Logistic Regression | 53.16% | 48.86% |
-| Support Vector Machine | 49.37% | 35.81% |
-| Gaussian Naive Bayes | 26.58% | 26.47% |
+The project compares:
+- Logistic Regression
+- Gaussian Naive Bayes
+- Support Vector Machine with an RBF kernel
 
-## Reported stratified 5-fold cross-validation results
+Evaluation includes a stratified train/test split, accuracy, macro-averaged precision/recall/F1, classification reports, confusion matrices, stratified 5-fold cross-validation and permutation feature importance.
 
-| Model | Mean Accuracy | Mean Macro F1 |
-|---|---:|---:|
-| Logistic Regression | 48.39% | 45.64% |
-| Support Vector Machine | 55.05% | 38.90% |
-| Gaussian Naive Bayes | 30.04% | 28.83% |
+The model selected for saving is the one with the highest mean cross-validation Macro F1. Macro F1 gives each class equal weight, which is useful when class frequencies differ.
 
-These values are transcribed from the supplied result files and have not been independently rerun during repository preparation.
+## Repository contents
 
-## Run the notebook
+| File | Description |
+|---|---|
+| `machine_learning_miniproject.ipynb` | End-to-end, reproducible notebook |
+| `student_performance_dataset.csv` | Prepared dataset |
+| `best_model.joblib` | Selected fitted pipeline |
+| `all_trained_models.joblib` | All three fitted pipelines |
+| `test_set_model_comparison.csv` | Held-out test metrics |
+| `cross_validation_results.csv` | 5-fold CV metrics |
+| `test_set_predictions.csv` | Actual and predicted test labels |
+| `feature_importance.csv` | Permutation importance |
+| `project_summary.txt` | Experiment summary |
+| `requirements.txt` | Python dependencies |
+| `.gitignore` | Files excluded from Git |
 
-The notebook was authored for **Google Colab** and contains Colab-specific file upload/download operations. Open it in [Google Colab](https://colab.research.google.com/) and run the cells in order. Install the main packages locally with:
+## Loading a saved model
 
-```bash
-pip install -r requirements.txt
+```python
+import joblib
+import pandas as pd
+
+model = joblib.load("best_model.joblib")
+new_student = pd.DataFrame([{
+    # Supply the same predictor columns used in the notebook.
+}])
+prediction = model.predict(new_student)
+print(prediction[0])
 ```
 
-Some Colab-specific cells may need adaptation for local execution. The notebook's original code has been preserved rather than silently rewritten.
+The input DataFrame must contain the same feature names and compatible values as the training data. Use the same scikit-learn version used to create the serialized model; the notebook records the active version in `model_metadata.json` when it is run.
 
 ## Dataset source
 
-UCI Student Performance dataset: https://archive.ics.uci.edu/dataset/320/student+performance
+UCI Machine Learning Repository — [Student Performance](https://archive.ics.uci.edu/dataset/320/student+performance). The notebook downloads the official archive and uses `student-mat.csv`.
 
-The supplied dataset is included here for reproducibility. Review the dataset's terms and attribution requirements before redistribution or reuse.
+## Limitations
 
-## Limitations and notes
-
-- The supplied dataset contains 395 records.
-- Results are based on the supplied train/test and cross-validation output files.
-- The reported predictive performance is moderate; this is an educational baseline, not a production student-assessment system.
-- The original ZIP also contained serialized `.joblib` model artifacts. Those binary artifacts have not been added to this repository.
-- Add the approved author names and institutional affiliation before presenting this as a final academic submission.
+- The mathematics dataset contains 395 students, so results may not generalize to other schools or populations.
+- This is an educational classification experiment, not a validated tool for making decisions about individual students.
+- The three-level target is derived from the final grade, and performance depends on the selected grade thresholds.
+- Cross-validation is performed on the training split; the test split is reserved for final evaluation.
