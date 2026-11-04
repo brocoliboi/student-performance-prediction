@@ -9,7 +9,7 @@ A supervised-learning project comparing Logistic Regression, Gaussian Naive Baye
 3. Open `machine_learning_miniproject.ipynb` in Jupyter or Google Colab.
 4. Run all cells from top to bottom. The notebook downloads the UCI dataset automatically; **no manual file upload is required**.
 
-The notebook saves the trained models, dataset, evaluation CSVs and `model_metadata.json` in its working directory.
+The notebook saves the trained models, dataset, evaluation CSVs and `model_metadata.json` in its working directory. Run the updated notebook once to regenerate these outputs so they correspond to the updated workflow.
 
 ## Target definition
 
@@ -54,9 +54,8 @@ import joblib
 import pandas as pd
 
 model = joblib.load("best_model.joblib")
-new_student = pd.DataFrame([{
-    # Supply the same predictor columns used in the notebook.
-}])
+data = pd.read_csv("student_performance_dataset.csv")
+new_student = data.drop(columns=["G1", "G2", "G3", "Performance"]).iloc[[0]]
 prediction = model.predict(new_student)
 print(prediction[0])
 ```
